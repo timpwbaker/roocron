@@ -26,6 +26,29 @@ class Formatter
 
   private
 
+  def invalid_argument_string
+    "Request invalid, #{timescale_string} must be between #{valid_options}"
+  end
+
+  def valid_options
+    if normalization_hash.empty?
+      permitted_range
+    else
+      "#{permitted_range} or #{normalization_hash.map{ |key, _| key }.join(" ")}"
+    end
+  end
+
+  def invalid_argument?
+    !sub_expression_validator.valid?
+  end
+
+  def sub_expression_validator
+    @_sub_expression_validator ||= 
+      SubExpressionValidator.new(sub_expression: cron_sub_expression,
+                                 permitted_range: permitted_range,
+                                 delimiter_describer: delimiter_describer)
+  end
+
   def valid_output_string
     "#{formatted_descriptor(timescale_string)}#{output_formatter}"
   end

@@ -5,11 +5,6 @@ class DelimiterDescriber
     @cron_sub_expression = cron_sub_expression
   end
 
-  def delimiter
-    @_delimiter ||=
-      delimiters.find{ |delimiter| cron_sub_expression.include?(delimiter) }
-  end
-
   def slash_delimited?
     delimiter == "/"
   end
@@ -30,9 +25,18 @@ class DelimiterDescriber
     delimiter == "-"
   end
 
+  def slash_format_divisor
+    slash_delimited? && cron_sub_expression.split("/").last.to_i
+  end
+
+  def delimiter
+    permitted_delimiters.find{ |delimiter| 
+      cron_sub_expression.include?(delimiter) }
+  end
+
   private
 
-  def delimiters
+  def permitted_delimiters
     ["/", ",", "*", "-"]
   end
 end

@@ -4,6 +4,7 @@ class CronParser
   require_relative "normalizer.rb"
   require_relative "delimiter_describer.rb"
   require_relative "formatter.rb"
+  require_relative "sub_expression_validator.rb"
 
   include SharedDefinitionMethods
   include ValidationMethods
