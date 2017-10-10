@@ -1,4 +1,4 @@
-module SharedFormatter
+module SharedMethods
   def explicit_formatted_string
     "#{formatted_descriptor("day of month")}#{input_argument}"
   end
@@ -66,6 +66,18 @@ module SharedFormatter
   def range_formatter
     array = input_argument.split("-")
     Range.new(array[0].to_i, array[1].to_i).to_a.join(" ")
+  end
+
+  def output_array
+    output_formatter.split(" ").map(&:to_i)
+  end
+
+  def valid_output_string
+    "#{formatted_descriptor(timescale_string)}#{output_formatter}"
+  end
+
+  def timescale_string
+    raise "You must implement a timescale_string in your formatter"
   end
 
   def wildcard

@@ -1,5 +1,5 @@
 class MinuteFormatter
-  include SharedFormatter
+  include SharedMethods
 
   attr_reader :input_argument
 

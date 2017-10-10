@@ -16,6 +16,15 @@ RSpec.describe DayOfMonthFormatter, "#format" do
 
     expect(formatter.format).to eq "day of month  10 20 30"
   end
+
+  it "returns error if divisor is outside possible range" do
+    input_argument = "*/40"
+    formatter = DayOfMonthFormatter.new(input_argument: input_argument)
+
+    expect{formatter.format}.to raise_error(
+      RuntimeError,
+      "Request invalid, day of month must be between 1..31")
+  end
 end
 
 RSpec.describe DayOfMonthFormatter, "#format" do
@@ -38,6 +47,15 @@ RSpec.describe DayOfMonthFormatter, "#format" do
       "day of month  1 3 16"
     )
   end
+
+  it "returns error if any of provided list is outside possible range" do
+    input_argument = "1,12,40"
+    formatter = DayOfMonthFormatter.new(input_argument: input_argument)
+
+    expect{formatter.format}.to raise_error(
+      RuntimeError,
+      "Request invalid, day of month must be between 1..31")
+  end
 end
 
 RSpec.describe DayOfMonthFormatter, "#format" do
@@ -49,6 +67,15 @@ RSpec.describe DayOfMonthFormatter, "#format" do
       "day of month  25 26 27 28 29 30 31"
     )
   end
+
+  it "returns error if any of provided range is outside possible range" do
+    input_argument = "12-40"
+    formatter = DayOfMonthFormatter.new(input_argument: input_argument)
+
+    expect{formatter.format}.to raise_error(
+      RuntimeError,
+      "Request invalid, day of month must be between 1..31")
+  end
 end
 
 RSpec.describe DayOfMonthFormatter, "#format" do
@@ -59,5 +86,14 @@ RSpec.describe DayOfMonthFormatter, "#format" do
     expect(formatter.format).to eq(
       "day of month  31"
     )
+  end
+
+  it "returns error if the provided input is outside possible range" do
+    input_argument = "40"
+    formatter = DayOfMonthFormatter.new(input_argument: input_argument)
+
+    expect{formatter.format}.to raise_error(
+      RuntimeError,
+      "Request invalid, day of month must be between 1..31")
   end
 end

@@ -1,12 +1,13 @@
 class CronParser
-  require_relative "shared_formatter.rb"
+  require_relative "shared_methods.rb"
+  require_relative "validation_methods.rb"
   require_relative "minute_formatter.rb"
   require_relative "hour_formatter.rb"
   require_relative "day_of_month_formatter.rb"
   require_relative "month_formatter.rb"
   require_relative "day_of_week_formatter.rb"
 
-  include SharedFormatter
+  include SharedMethods
 
   attr_reader :input_argument
 

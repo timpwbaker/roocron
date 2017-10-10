@@ -1,5 +1,6 @@
 class DayOfMonthFormatter
-  include SharedFormatter
+  include SharedMethods
+  include ValidationMethods
 
   attr_reader :input_argument
 
@@ -8,10 +9,16 @@ class DayOfMonthFormatter
   end
 
   def format
-    "#{formatted_descriptor("day of month")}#{output_formatter}"
+    raise invalid_argument_string if invalid_argument?
+
+    valid_output_string
   end
 
   private
+
+  def timescale_string
+    "day of month"
+  end
 
   def wildcard
     (1..31)
