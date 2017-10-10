@@ -81,23 +81,7 @@ module SharedFormatterMethods
     "#{formatted_descriptor(timescale_string)}#{output_formatter}"
   end
 
-  def explicit_formatted_string
-    "#{formatted_descriptor("day of month")}#{user_input}"
-  end
-
-  def special_formatted_string
-    "#{formatted_descriptor("day of month")}#{special_day_of_month_formatter}"
-  end
-
   def formatted_descriptor(descriptor)
     @_formatted_descriptor ||= "%-14.14s" % descriptor
-  end
-
-  def timescale_string
-    raise "You must pass a timescale_string argument your formatter"
-  end
-
-  def permitted_range
-    raise "You must pass a permitted range argument to your formatter"
   end
 end

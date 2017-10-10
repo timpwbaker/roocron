@@ -39,3 +39,14 @@ Tests are in RSpec so:
 and once again from the root directory
 
     rspec
+
+simple cov can tell you how much of the application is covered by the tests
+
+    gem install simplecov
+    rspec
+    open coverage/index.html
+
+## Todos
+
+I would like more concrete examples confirmed by the tests. But given the time
+constraints I didn't have time to put these together.
