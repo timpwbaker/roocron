@@ -1,81 +1,121 @@
 class CronParser
-  require_relative "minute_formatter.rb"
-  require_relative "hour_formatter.rb"
-  require_relative "day_of_month_formatter.rb"
-  require_relative "month_formatter.rb"
-  require_relative "day_of_week_formatter.rb"
+  require_relative "definition_methods.rb"
+  require_relative "delimiter_describer.rb"
+  require_relative "user_input_validator.rb"
+  require_relative "normalizer.rb"
+  require_relative "sub_expression.rb"
+  require_relative "sub_expression_validator.rb"
 
-  attr_reader :input_argument
+  include DefinitionMethods
 
-  def initialize(input_argument:)
-    @input_argument = input_argument
+  attr_reader :user_input
+
+  def initialize(user_input:)
+    @user_input = user_input
   end
 
   def parse
-    generate_output
+    if user_input_valid?
+      generate_output
+    else
+      raise "There has been a problem, have you provided an input?"
+    end
   end
 
   private
 
-  def minute_formatted_string
-    MinuteFormatter.new(input_argument: minute).format
+  def user_input_valid?
+    user_input_validator.validate
   end
 
-  def hour_formatted_string
-    HourFormatter.new(input_argument: hour).format
+  def generate_output
+    [
+      minute.english_string,
+      hour.english_string,
+      day_of_month.english_string,
+      month.english_string,
+      day_of_week.english_string,
+      command_formatted_string
+    ].join("\n") + "\n"
   end
 
-  def day_of_month_formatted_string
-    DayOfMonthFormatter.new(input_argument: day_of_month).format
+  def minute
+    SubExpression.new(sub_expression: sub_expressions.minute,
+                      timescale_string: minute_timescale_string,
+                      permitted_range: minute_permitted_range,
+                      delimiter_describer: delimiter_describer_for(
+                        sub_expressions.minute))
   end
 
-  def month_formatted_string
-    MonthFormatter.new(input_argument: month).format
+  def hour
+    SubExpression.new(sub_expression: sub_expressions.hour,
+                      timescale_string: hour_timescale_string,
+                      permitted_range: hour_permitted_range,
+                      delimiter_describer: delimiter_describer_for(
+                        sub_expressions.hour))
   end
 
-  def day_of_week_formatted_string
-    DayOfWeekFormatter.new(input_argument: day_of_week).format
+  def day_of_month
+    SubExpression.new(sub_expression: sub_expressions.day_of_month,
+                      timescale_string: day_of_month_timescale_string,
+                      permitted_range: day_of_month_permitted_range,
+                      delimiter_describer: delimiter_describer_for(
+                        sub_expressions.day_of_month))
+  end
+
+  def month
+    SubExpression.new(sub_expression: normalized_month,
+                      timescale_string: month_timescale_string,
+                      permitted_range: month_permitted_range,
+                      delimiter_describer: delimiter_describer_for(
+                        normalized_month))
+  end
+
+  def day_of_week
+    SubExpression.new(sub_expression: normalized_day_of_week,
+                      timescale_string: day_of_week_timescale_string,
+                      permitted_range: day_of_week_permitted_range,
+                      delimiter_describer: delimiter_describer_for(
+                        normalized_day_of_week))
+  end
+
+  def delimiter_describer_for(sub_expression)
+    DelimiterDescriber.new(sub_expression: sub_expression)
+  end
+
+  def normalized_month
+    Normalizer.new(
+      sub_expression: sub_expressions.month,
+      normalization_hash: month_of_year_hash).normalize
+  end
+
+  def normalized_day_of_week
+    Normalizer.new(
+      sub_expression: sub_expressions.day_of_week,
+      normalization_hash: day_of_week_hash).normalize
+  end
+
+  def command
+    sub_expressions.command
   end
 
   def command_formatted_string
     "command       #{command}"
   end
-  def minute
-    input_argument_array[0]
+
+  def user_input_validator
+    UserInputValidator.new(user_input: user_input)
   end
 
-  def hour
-    input_argument_array[1]
-  end
-
-  def day_of_month
-    input_argument_array[2]
-  end
-
-  def month
-    input_argument_array[3]
-  end
-
-  def day_of_week
-    input_argument_array[4]
-  end
-
-  def command
-    input_argument_array[5]
-  end
-
-  def generate_output
-    [
-      minute_formatted_string,
-      hour_formatted_string,
-      day_of_month_formatted_string,
-      month_formatted_string,
-      day_of_week_formatted_string,
-      command_formatted_string
-    ].join("\n") + "\n"
-  end
-
-  def input_argument_array
-    input_argument.split(" ")
+  def sub_expressions
+    parts = user_input.split(" ")
+    OpenStruct.new(
+      minute: parts[0],
+      hour: parts[1],
+      day_of_month: parts[2],
+      month: parts[3],
+      day_of_week: parts[4],
+      command: parts[5]
+    )
   end
 end
