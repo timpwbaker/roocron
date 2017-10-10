@@ -21,12 +21,16 @@ module ValidationMethods
     output_array.empty?
   end
 
+  def output_array
+    output_formatter.split(" ").map(&:to_i)
+  end
+
   def output_outside_valid_range?
     (output_array - permitted_range.to_a).any?
   end
 
   def slash_format_divisor_outside_valid_range?
-    slash_delimited? && !permitted_range.include?(slash_formatter_divisor)
+    delimiter_describer.slash_delimited? && !permitted_range.include?(slash_formatter_divisor)
   end
 
   def invalid_argument_string

@@ -1,11 +1,11 @@
 class CronParser
-  require_relative "shared_formatter_methods.rb"
   require_relative "shared_definition_methods.rb"
   require_relative "validation_methods.rb"
+  require_relative "normalizer.rb"
+  require_relative "delimiter_describer.rb"
   require_relative "formatter.rb"
 
   include SharedDefinitionMethods
-  include SharedFormatterMethods
   include ValidationMethods
 
   attr_reader :user_input
@@ -24,7 +24,7 @@ class CronParser
 
   def minute_formatted_string
     Formatter.new(
-      user_input: minute,
+      cron_sub_expression: minute,
       permitted_range: minute_permitted_range,
       timescale_string: minute_timescale_string
     ).format
@@ -32,7 +32,7 @@ class CronParser
 
   def hour_formatted_string
     Formatter.new(
-      user_input: hour,
+      cron_sub_expression: hour,
       permitted_range: hour_permitted_range,
       timescale_string: hour_timescale_string
     ).format
@@ -40,7 +40,7 @@ class CronParser
 
   def day_of_month_formatted_string
     Formatter.new(
-      user_input: day_of_month,
+      cron_sub_expression: day_of_month,
       permitted_range: day_of_month_permitted_range,
       timescale_string: day_of_month_timescale_string
     ).format
@@ -48,7 +48,7 @@ class CronParser
 
   def month_formatted_string
     Formatter.new(
-      user_input: month,
+      cron_sub_expression: month,
       permitted_range: month_permitted_range,
       timescale_string: month_timescale_string,
       normalization_hash: month_of_year_hash
@@ -57,7 +57,7 @@ class CronParser
 
   def day_of_week_formatted_string
     Formatter.new(
-      user_input: day_of_week,
+      cron_sub_expression: day_of_week,
       permitted_range: day_of_week_permitted_range,
       timescale_string: day_of_week_timescale_string,
       normalization_hash: day_of_week_hash
@@ -65,7 +65,7 @@ class CronParser
   end
 
   def command_formatted_string
-    "#{formatted_descriptor("command")}#{command}"
+    "command       #{command}"
   end
 
   def minute

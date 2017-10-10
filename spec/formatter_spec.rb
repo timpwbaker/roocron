@@ -2,30 +2,30 @@ require "spec_helper"
 
 RSpec.describe Formatter, ".initialize" do
   it "accepts a timescale string, a permitted range, a user input and english hash" do
-    user_input = "*/15"
+    cron_sub_expression = "*/15"
     permitted_range = (0..6)
     timescale_string = "day of week"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string)
 
-    expect(formatter.user_input).to eq user_input
+    expect(formatter.cron_sub_expression).to eq cron_sub_expression
     expect(formatter.permitted_range).to eq permitted_range
     expect(formatter.timescale_string).to eq timescale_string
   end
 
   it "converts user input if a compatible translation hash is provided" do
-    user_input = "sun"
+    cron_sub_expression = "sun"
     permitted_range = (0..6)
     timescale_string = "day of week"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string,
       normalization_hash: day_of_week_hash)
 
-    expect(formatter.user_input).to eq "sun"
+    expect(formatter.cron_sub_expression).to eq "0"
     expect(formatter.permitted_range).to eq (0..6)
     expect(formatter.timescale_string).to eq "day of week"
     expect(formatter.normalization_hash).to eq day_of_week_hash
@@ -34,11 +34,11 @@ end
 
 RSpec.describe Formatter, "#format" do
   it "returns a formatted string for a */15 style input" do
-    user_input = "*/15"
+    cron_sub_expression = "*/15"
     permitted_range = (0..59)
     timescale_string = "minute"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string)
 
@@ -46,11 +46,11 @@ RSpec.describe Formatter, "#format" do
   end
 
   it "returns error if divisor is outside possible range" do
-    user_input = "*/15"
+    cron_sub_expression = "*/15"
     permitted_range = (0..6)
     timescale_string = "day of week"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string)
 
@@ -62,11 +62,11 @@ end
 
 RSpec.describe Formatter, "#format" do
   it "returns a formatted string for a * (wildcard) input" do
-    user_input = "*"
+    cron_sub_expression = "*"
     permitted_range = (0..23)
     timescale_string = "hour"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string)
 
@@ -78,11 +78,11 @@ end
 
 RSpec.describe Formatter, "#format" do
   it "returns a formatted string for a comma separated list style input" do
-    user_input = "10,27,31"
+    cron_sub_expression = "10,27,31"
     permitted_range = (1..31)
     timescale_string = "day of month"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string)
 
@@ -92,11 +92,11 @@ RSpec.describe Formatter, "#format" do
   end
 
   it "converts using the normalization hash if required" do
-    user_input = "MON,WED"
+    cron_sub_expression = "MON,WED"
     permitted_range = (0..6)
     timescale_string = "day of week"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string,
       normalization_hash: day_of_week_hash)
@@ -106,11 +106,11 @@ expect(formatter.format).to eq(
   end
 
   it "returns error if any of the list are outside possible range" do
-    user_input = "10,27,78"
+    cron_sub_expression = "10,27,78"
     permitted_range = (0..59)
     timescale_string = "minute"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string)
 
@@ -122,11 +122,11 @@ end
 
 RSpec.describe Formatter, "#format" do
   it "returns a formatted string for hyphenated range style input" do
-    user_input = "25-32"
+    cron_sub_expression = "25-32"
     permitted_range = (0..59)
     timescale_string = "minute"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string)
 
@@ -136,11 +136,11 @@ RSpec.describe Formatter, "#format" do
   end
 
   it "normalizes the input if required and returns the correct string" do
-    user_input = "Jan-Mar"
+    cron_sub_expression = "Jan-Mar"
     permitted_range = (1..12)
     timescale_string = "month"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string,
       normalization_hash: month_of_year_hash)
@@ -151,11 +151,11 @@ RSpec.describe Formatter, "#format" do
   end
 
   it "returns error if any of the list are outside possible range" do
-    user_input = "50-72"
+    cron_sub_expression = "50-72"
     permitted_range = (0..59)
     timescale_string = "minute"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string)
 
@@ -167,11 +167,11 @@ end
 
 RSpec.describe Formatter, "#format" do
   it "returns a formatted string for an explicit input" do
-    user_input = "12"
+    cron_sub_expression = "12"
     permitted_range = (0..59)
     timescale_string = "minute"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string)
 
@@ -181,11 +181,11 @@ RSpec.describe Formatter, "#format" do
   end
 
   it "returns a formatted string for an acceptable english user day input" do
-    user_input = "sun"
+    cron_sub_expression = "sun"
     permitted_range = (0..6)
     timescale_string = "day of week"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string,
       normalization_hash: day_of_week_hash)
@@ -196,11 +196,11 @@ RSpec.describe Formatter, "#format" do
   end
 
   it "returns a formatted string for an acceptable english user month input" do
-    user_input = "jan"
+    cron_sub_expression = "jan"
     permitted_range = (1..12)
     timescale_string = "month"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string,
       normalization_hash: month_of_year_hash)
@@ -209,11 +209,11 @@ RSpec.describe Formatter, "#format" do
   end
 
   it "accepts a user input of 7 and treats it as 0 (sunday)" do
-    user_input = "7"
+    cron_sub_expression = "7"
     permitted_range = (0..6)
     timescale_string = "day of week"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string,
       normalization_hash: day_of_week_hash)
@@ -222,11 +222,11 @@ RSpec.describe Formatter, "#format" do
   end
 
   it "returns error if the explicit input is outside possible range" do
-    user_input = "10"
+    cron_sub_expression = "10"
     permitted_range = (0..6)
     timescale_string = "day of week"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string,
       normalization_hash: day_of_week_hash)
@@ -237,11 +237,11 @@ RSpec.describe Formatter, "#format" do
   end
 
   it "returns error if the explicit input is outside possible range" do
-    user_input = "72"
+    cron_sub_expression = "72"
     permitted_range = (0..59)
     timescale_string = "minute"
     formatter = Formatter.new(
-      user_input: user_input,
+      cron_sub_expression: cron_sub_expression,
       permitted_range: permitted_range,
       timescale_string: timescale_string)
 
