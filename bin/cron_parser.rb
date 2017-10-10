@@ -3,6 +3,6 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'cron_parser'
 
-input_argument = ARGV[0]
-parser = CronParser.new(input_argument: input_argument)
+user_input = ARGV[0]
+parser = CronParser.new(user_input: user_input)
 puts parser.parse
