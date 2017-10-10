@@ -1,9 +1,12 @@
 class CronParser
+  require_relative "shared_formatter.rb"
   require_relative "minute_formatter.rb"
   require_relative "hour_formatter.rb"
   require_relative "day_of_month_formatter.rb"
   require_relative "month_formatter.rb"
   require_relative "day_of_week_formatter.rb"
+
+  include SharedFormatter
 
   attr_reader :input_argument
 
@@ -38,8 +41,9 @@ class CronParser
   end
 
   def command_formatted_string
-    "command       #{command}"
+    "#{formatted_descriptor("command")}#{command}"
   end
+
   def minute
     input_argument_array[0]
   end
