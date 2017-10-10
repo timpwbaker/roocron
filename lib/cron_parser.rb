@@ -1,44 +1,67 @@
 class CronParser
-  require_relative "shared_methods.rb"
+  require_relative "shared_formatter_methods.rb"
+  require_relative "shared_definition_methods.rb"
   require_relative "validation_methods.rb"
-  require_relative "minute_formatter.rb"
-  require_relative "hour_formatter.rb"
-  require_relative "day_of_month_formatter.rb"
-  require_relative "month_formatter.rb"
-  require_relative "day_of_week_formatter.rb"
+  require_relative "formatter.rb"
 
-  include SharedMethods
+  include SharedDefinitionMethods
+  include SharedFormatterMethods
+  include ValidationMethods
 
-  attr_reader :input_argument
+  attr_reader :user_input
 
-  def initialize(input_argument:)
-    @input_argument = input_argument
+  def initialize(user_input:)
+    @user_input = user_input
   end
 
   def parse
+    raise invalid_cron_expression_string if invalid_cron_expression?
+
     generate_output
   end
 
   private
 
   def minute_formatted_string
-    MinuteFormatter.new(input_argument: minute).format
+    Formatter.new(
+      user_input: minute,
+      permitted_range: minute_permitted_range,
+      timescale_string: minute_timescale_string
+    ).format
   end
 
   def hour_formatted_string
-    HourFormatter.new(input_argument: hour).format
+    Formatter.new(
+      user_input: hour,
+      permitted_range: hour_permitted_range,
+      timescale_string: hour_timescale_string
+    ).format
   end
 
   def day_of_month_formatted_string
-    DayOfMonthFormatter.new(input_argument: day_of_month).format
+    Formatter.new(
+      user_input: day_of_month,
+      permitted_range: day_of_month_permitted_range,
+      timescale_string: day_of_month_timescale_string
+    ).format
   end
 
   def month_formatted_string
-    MonthFormatter.new(input_argument: month).format
+    Formatter.new(
+      user_input: month,
+      permitted_range: month_permitted_range,
+      timescale_string: month_timescale_string,
+      normalization_hash: month_of_year_hash
+    ).format
   end
 
   def day_of_week_formatted_string
-    DayOfWeekFormatter.new(input_argument: day_of_week).format
+    Formatter.new(
+      user_input: day_of_week,
+      permitted_range: day_of_week_permitted_range,
+      timescale_string: day_of_week_timescale_string,
+      normalization_hash: day_of_week_hash
+    ).format
   end
 
   def command_formatted_string
@@ -46,27 +69,27 @@ class CronParser
   end
 
   def minute
-    input_argument_array[0]
+    user_input_array[0]
   end
 
   def hour
-    input_argument_array[1]
+    user_input_array[1]
   end
 
   def day_of_month
-    input_argument_array[2]
+    user_input_array[2]
   end
 
   def month
-    input_argument_array[3]
+    user_input_array[3]
   end
 
   def day_of_week
-    input_argument_array[4]
+    user_input_array[4]
   end
 
   def command
-    input_argument_array[5]
+    user_input_array[5]
   end
 
   def generate_output
@@ -80,7 +103,7 @@ class CronParser
     ].join("\n") + "\n"
   end
 
-  def input_argument_array
-    input_argument.split(" ")
+  def user_input_array
+    user_input.split(" ")
   end
 end
