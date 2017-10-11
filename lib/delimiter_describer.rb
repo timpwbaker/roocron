@@ -13,10 +13,6 @@ class DelimiterDescriber
     cron_sub_expression == "*"
   end
 
-  def star_delimited?
-    delimiter == "*"
-  end
-
   def comma_delimited?
     delimiter == ","
   end

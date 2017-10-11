@@ -1,7 +1,7 @@
 class Normalizer
   attr_reader :cron_sub_expression, :normalization_hash
 
-  def initialize(cron_sub_expression:, normalization_hash:, delimiter:)
+  def initialize(cron_sub_expression:, normalization_hash:)
     @cron_sub_expression = cron_sub_expression
     @normalization_hash = normalization_hash
   end

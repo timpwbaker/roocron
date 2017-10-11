@@ -1,21 +1,30 @@
 class SubExpressionValidator
-  attr_reader :sub_expression, :permitted_range
+  attr_reader :sub_expression, :permitted_range, :timescale_string, :delimiter_describer
 
-  def initialize(sub_expression:, permitted_range:, delimiter_describer:)
+  def initialize(sub_expression:, timescale_string:, permitted_range:, delimiter_describer:)
     @sub_expression = sub_expression
+    @timescale_string = timescale_string
     @permitted_range = permitted_range
     @delimiter_describer = delimiter_describer
   end
 
-  def valid?
-    delimiter_describer.wildcard? || !invalid_sub_expression
-  end
-
-  def invalid_response
-    invalid_argument_string
+  def validate
+    valid?
   end
 
   private
+
+  def valid?
+    if delimiter_describer.wildcard? || !invalid_sub_expression
+      true
+    else
+      raise invalid_argument_string
+    end
+  end
+
+  def invalid_argument_string
+    "Request invalid, #{timescale_string} must be between #{permitted_range}"
+  end
 
   def invalid_sub_expression
     slash_format_divisor_outside_permitted_range? ||
@@ -37,10 +46,5 @@ class SubExpressionValidator
 
   def output_outside_permitted_range?
     (output_array - permitted_range.to_a).any?
-  end
-
-  def delimiter_describer
-    @_delimiter_describer ||= DelimiterDescriber.new(
-      cron_sub_expression: sub_expression)
   end
 end

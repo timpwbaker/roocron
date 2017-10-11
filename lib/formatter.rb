@@ -1,53 +1,24 @@
 class Formatter
-  include SharedDefinitionMethods
-  include ValidationMethods
 
   attr_reader :cron_sub_expression,
+    :delimiter_describer,
     :permitted_range,
-    :timescale_string,
-    :normalization_hash,
-    :delimiter_describer
+    :timescale_string
 
-  def initialize(cron_sub_expression:, permitted_range:,
-                 timescale_string:, normalization_hash: {})
-    @normalization_hash = normalization_hash
+  def initialize(cron_sub_expression:, delimiter_describer:, permitted_range:, timescale_string:)
     @permitted_range = permitted_range
     @timescale_string = timescale_string
-    @delimiter_describer = DelimiterDescriber.new(
-      cron_sub_expression: cron_sub_expression)
-    @cron_sub_expression = normalized_cron_sub_expression(cron_sub_expression)
+    @cron_sub_expression = cron_sub_expression
+    @delimiter_describer = delimiter_describer
   end
 
   def format
-    raise invalid_argument_string if invalid_argument?
+    sub_expression_validator.validate
 
     valid_output_string
   end
 
   private
-
-  def invalid_argument_string
-    "Request invalid, #{timescale_string} must be between #{valid_options}"
-  end
-
-  def valid_options
-    if normalization_hash.empty?
-      permitted_range
-    else
-      "#{permitted_range} or #{normalization_hash.map{ |key, _| key }.join(" ")}"
-    end
-  end
-
-  def invalid_argument?
-    !sub_expression_validator.valid?
-  end
-
-  def sub_expression_validator
-    @_sub_expression_validator ||= 
-      SubExpressionValidator.new(sub_expression: cron_sub_expression,
-                                 permitted_range: permitted_range,
-                                 delimiter_describer: delimiter_describer)
-  end
 
   def valid_output_string
     "#{formatted_descriptor(timescale_string)}#{output_formatter}"
@@ -105,10 +76,11 @@ class Formatter
     Range.new(lowest, highest)
   end
 
-  def normalized_cron_sub_expression(expression)
-    Normalizer.new(
-      cron_sub_expression: expression,
-      normalization_hash: normalization_hash,
-      delimiter: delimiter_describer.delimiter).normalize
+  def sub_expression_validator
+    @_sub_expression_validator ||=
+      SubExpressionValidator.new(sub_expression: cron_sub_expression,
+                                 timescale_string: timescale_string,
+                                 permitted_range: permitted_range,
+                                 delimiter_describer: delimiter_describer)
   end
 end

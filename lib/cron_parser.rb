@@ -1,13 +1,13 @@
 class CronParser
-  require_relative "shared_definition_methods.rb"
-  require_relative "validation_methods.rb"
-  require_relative "normalizer.rb"
+  require_relative "definition_methods.rb"
   require_relative "delimiter_describer.rb"
+  require_relative "expression.rb"
+  require_relative "expression_validator.rb"
   require_relative "formatter.rb"
+  require_relative "normalizer.rb"
   require_relative "sub_expression_validator.rb"
 
-  include SharedDefinitionMethods
-  include ValidationMethods
+  include DefinitionMethods
 
   attr_reader :user_input
 
@@ -16,81 +16,72 @@ class CronParser
   end
 
   def parse
-    raise invalid_cron_expression_string if invalid_cron_expression?
+    expression_validator.validate
 
     generate_output
   end
 
   private
 
+  def expression_validator
+    ExpressionValidator.new(user_input: user_input)
+  end
+
+  def expression
+    @_expression ||= Expression.new(user_input: user_input)
+  end
+
   def minute_formatted_string
     Formatter.new(
-      cron_sub_expression: minute,
+      cron_sub_expression: expression.minute,
       permitted_range: minute_permitted_range,
-      timescale_string: minute_timescale_string
+      timescale_string: minute_timescale_string,
+      delimiter_describer: delimiter_describer_for(expression.minute)
     ).format
   end
 
   def hour_formatted_string
     Formatter.new(
-      cron_sub_expression: hour,
+      cron_sub_expression: expression.hour,
       permitted_range: hour_permitted_range,
-      timescale_string: hour_timescale_string
+      timescale_string: hour_timescale_string,
+      delimiter_describer: delimiter_describer_for(expression.hour)
     ).format
   end
 
   def day_of_month_formatted_string
     Formatter.new(
-      cron_sub_expression: day_of_month,
+      cron_sub_expression: expression.day_of_month,
       permitted_range: day_of_month_permitted_range,
-      timescale_string: day_of_month_timescale_string
+      timescale_string: day_of_month_timescale_string,
+      delimiter_describer: delimiter_describer_for(expression.day_of_month)
     ).format
   end
 
   def month_formatted_string
     Formatter.new(
-      cron_sub_expression: month,
+      cron_sub_expression: expression.month,
       permitted_range: month_permitted_range,
       timescale_string: month_timescale_string,
-      normalization_hash: month_of_year_hash
+      delimiter_describer: delimiter_describer_for(expression.month)
     ).format
   end
 
   def day_of_week_formatted_string
     Formatter.new(
-      cron_sub_expression: day_of_week,
+      cron_sub_expression: expression.day_of_week,
       permitted_range: day_of_week_permitted_range,
       timescale_string: day_of_week_timescale_string,
-      normalization_hash: day_of_week_hash
+      delimiter_describer: delimiter_describer_for(expression.day_of_week)
     ).format
   end
 
   def command_formatted_string
-    "command       #{command}"
+    "command       #{expression.command}"
   end
 
-  def minute
-    user_input_array[0]
-  end
-
-  def hour
-    user_input_array[1]
-  end
-
-  def day_of_month
-    user_input_array[2]
-  end
-
-  def month
-    user_input_array[3]
-  end
-
-  def day_of_week
-    user_input_array[4]
-  end
-
-  def command
-    user_input_array[5]
+  def delimiter_describer_for(cron_sub_expression)
+    DelimiterDescriber.new(cron_sub_expression: cron_sub_expression)
   end
 
   def generate_output
@@ -102,9 +93,5 @@ class CronParser
       day_of_week_formatted_string,
       command_formatted_string
     ].join("\n") + "\n"
-  end
-
-  def user_input_array
-    user_input.split(" ")
   end
 end

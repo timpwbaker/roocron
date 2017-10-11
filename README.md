@@ -6,6 +6,30 @@ It takes a string of the cron instructions followed by the command you wish to
 run and feeds back a table containing details of when the cron task will execute
 the command, in a more human readable format.
 
+## Architecture
+
+The CronParser and Formatter hold most of the knowledge.
+
+The CronParser takes a user input, the ExpressionValidator checks that it's
+valid as far as structure is concerned, the Normalizer then converts any non
+integer months/days into their integer equivalents, and the Expression is
+responsible for knowing which parts of of the user input correspond to what.
+
+The CronParser knows how to put all these elements together and pass them to the
+Formatter which generates individual rows for the outputted table.
+
+The Formatter takes a cron sub expression, a permitted range, a timescale
+string, and a DelimiterDescriber - an object responsible for knowing about the
+delimiters used in cron expressions \*, /, - and ,
+
+The Formatter passes the sub expression to the SubExpressionValidator along with
+the delimiter and acceptable range to validate that the sub expression is valid
+for the component it relates to. A year has months 1-12, so if you ask for month
+13 it will fail here.
+
+The Formatter then generates a valid output string for each sub expression and
+returns it to the CronParser for output
+
 ## Usage
 
 To run, locate yourself in the application's home directory and run:
