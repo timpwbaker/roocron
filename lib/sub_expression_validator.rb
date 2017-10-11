@@ -8,13 +8,13 @@ class SubExpressionValidator
     @delimiter_describer = delimiter_describer
   end
 
-  def validate
-    valid?
+  def valid?
+    validate
   end
 
   private
 
-  def valid?
+  def validate
     if delimiter_describer.wildcard? || !invalid_sub_expression
       true
     else
@@ -32,7 +32,7 @@ class SubExpressionValidator
   end
 
   def slash_format_divisor_outside_permitted_range?
-    delimiter_describer.slash_delimited? && 
+    delimiter_describer.slash_delimited? &&
       !permitted_range.include?(delimiter_describer.slash_format_divisor)
   end
 

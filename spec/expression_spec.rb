@@ -9,55 +9,31 @@ RSpec.describe Expression, ".initialize" do
   end
 end
 
-RSpec.describe Expression, "#minute" do
-  it "returns the minute portion of the expression" do
+RSpec.describe Expression, "#english_output" do
+  it "returns the english output for a user input" do
     user_input = "*/15 0 1,15 * 1-5 /usr/bin/find"
     expression = Expression.new(user_input: user_input)
 
-    expect(expression.minute).to eq "*/15"
+    expect(expression.express).to eq known_result
+  end
+
+  it "raises an error if there are not enough elements in the expression" do
+    user_input = "0 1,15 * 1-5 /usr/bin/find"
+    expression = Expression.new(user_input: user_input)
+
+    expect { expression.express }.to raise_error(
+      RuntimeError, "Invalid input expression, the input should be 5 cron"\
+      " elements followed by a command. For details please checkout the README")
   end
 end
 
-RSpec.describe Expression, "#hour" do
-  it "returns the hour portion of the expression" do
-    user_input = "*/15 0 1,15 * 1-5 /usr/bin/find"
-    expression = Expression.new(user_input: user_input)
-
-    expect(expression.hour).to eq "0"
-  end
-end
-
-RSpec.describe Expression, "#day_of_month" do
-  it "returns the day of month portion of the expression" do
-    user_input = "*/15 0 1,15 * 1-5 /usr/bin/find"
-    expression = Expression.new(user_input: user_input)
-
-    expect(expression.day_of_month).to eq "1,15"
-  end
-end
-
-RSpec.describe Expression, "#month" do
-  it "returns the month portion of the expression" do
-    user_input = "*/15 0 1,15 * 1-5 /usr/bin/find"
-    expression = Expression.new(user_input: user_input)
-
-    expect(expression.month).to eq "*"
-  end
-end
-
-RSpec.describe Expression, "#day_of_week" do
-  it "returns the day of week portion of the expression" do
-    user_input = "*/15 0 1,15 * 1-5 /usr/bin/find"
-    expression = Expression.new(user_input: user_input)
-
-    expect(expression.day_of_week).to eq "1-5"
-  end
-end
-RSpec.describe Expression, "#command" do
-  it "returns the command portion of the expression" do
-    user_input = "*/15 0 1,15 * 1-5 /usr/bin/find"
-    expression = Expression.new(user_input: user_input)
-
-    expect(expression.command).to eq "/usr/bin/find"
-  end
+def known_result
+  [
+    "minute        0 15 30 45",
+    "hour          0",
+    "day of month  1 15",
+    "month         1 2 3 4 5 6 7 8 9 10 11 12",
+    "day of week   1 2 3 4 5",
+    "command       /usr/bin/find"
+  ].join("\n") + "\n"
 end

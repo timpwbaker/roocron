@@ -6,7 +6,7 @@ RSpec.describe SubExpressionValidator, ".initialize" do
     permitted_range = (1..90)
     timescale_string = "minute"
     delimiter_describer = DelimiterDescriber.new(
-      cron_sub_expression: sub_expression)
+      sub_expression: sub_expression)
     validator = SubExpressionValidator.new(
       sub_expression: sub_expression,
       permitted_range: permitted_range,
@@ -19,41 +19,67 @@ RSpec.describe SubExpressionValidator, ".initialize" do
 end
 
 RSpec.describe SubExpressionValidator, ".valid?" do
-  it "returns true if the sub expression is valid" do
-    valid_sub_expressions = ["1-4", "*/6", "1", "mon", "Fri", "WEDS", "jun", "Aug", "aug-sept", "1,2,7"]
-    timescale_string = "minute"
-    permitted_range = (0..59)
+  it "returns error if divisor is outside possible range" do
+    sub_expression = "*/15"
+    permitted_range = (0..6)
+    timescale_string = "day of week"
+    delimiter_describer = DelimiterDescriber.new(sub_expression: sub_expression)
+    validator = SubExpressionValidator.new(
+      sub_expression: sub_expression,
+      permitted_range: permitted_range,
+      delimiter_describer: delimiter_describer,
+      timescale_string: timescale_string)
 
-    valid_sub_expressions.each do |sub_expression|
-      delimiter_describer = DelimiterDescriber.new(
-        cron_sub_expression: sub_expression)
-      validator = SubExpressionValidator.new(
-        sub_expression: sub_expression,
-        permitted_range: permitted_range,
-        timescale_string: timescale_string,
-        delimiter_describer: delimiter_describer)
-
-      expect(validator.validate).to be true
-    end
+    expect { validator.valid? }.to raise_error(
+      RuntimeError,
+      "Request invalid, day of week must be between 0..6")
   end
 
-  it "returns false if the sub expression is not valid" do
-    invalid_sub_expressions = ["", "190", "*/70", "55-60", "1,6,90"]
-    timescale_string = "minute"
+  it "returns error if any of the list are outside possible range" do
+    sub_expression = "10,27,78"
     permitted_range = (0..59)
+    timescale_string = "minute"
+    delimiter_describer = DelimiterDescriber.new(sub_expression: sub_expression)
+    validator = SubExpressionValidator.new(
+      sub_expression: sub_expression,
+      permitted_range: permitted_range,
+      delimiter_describer: delimiter_describer,
+      timescale_string: timescale_string)
 
-    invalid_sub_expressions.each do |sub_expression|
-      delimiter_describer = DelimiterDescriber.new(
-        cron_sub_expression: sub_expression)
-      validator = SubExpressionValidator.new(
-        sub_expression: sub_expression,
-        permitted_range: permitted_range,
-        timescale_string: timescale_string,
-        delimiter_describer: delimiter_describer)
-
-      expect{validator.validate}.to raise_error(
+    expect { validator.valid? }.to raise_error(
       RuntimeError,
       "Request invalid, minute must be between 0..59")
-    end
+  end
+
+  it "returns error if any of the range are outside possible range" do
+    sub_expression = "50-72"
+    permitted_range = (0..59)
+    timescale_string = "minute"
+    delimiter_describer = DelimiterDescriber.new(sub_expression: sub_expression)
+    validator = SubExpressionValidator.new(
+      sub_expression: sub_expression,
+      permitted_range: permitted_range,
+      delimiter_describer: delimiter_describer,
+      timescale_string: timescale_string)
+
+    expect { validator.valid? }.to raise_error(
+      RuntimeError,
+      "Request invalid, minute must be between 0..59")
+  end
+
+  it "returns error if the explicit input is outside possible range" do
+    sub_expression = "10"
+    permitted_range = (0..6)
+    timescale_string = "day of week"
+    delimiter_describer = DelimiterDescriber.new(sub_expression: sub_expression)
+    validator = SubExpressionValidator.new(
+      sub_expression: sub_expression,
+      permitted_range: permitted_range,
+      timescale_string: timescale_string,
+      delimiter_describer: delimiter_describer)
+
+    expect { validator.valid? }.to raise_error(
+      RuntimeError,
+      "Request invalid, day of week must be between 0..6")
   end
 end

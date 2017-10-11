@@ -8,27 +8,17 @@ the command, in a more human readable format.
 
 ## Architecture
 
-The CronParser and Formatter hold most of the knowledge.
+CronParser instantiates an Expression with a user input, it asks this Expression
+for `english_output`.
 
-The CronParser takes a user input, the ExpressionValidator checks that it's
-valid as far as structure is concerned, the Normalizer then converts any non
-integer months/days into their integer equivalents, and the Expression is
-responsible for knowing which parts of of the user input correspond to what.
+The Expression instantiates SubExpressions for each element of the user inputted
+expression - a sub expression - and asks each one for `english_string`. The
+final command is handled separately.
 
-The CronParser knows how to put all these elements together and pass them to the
-Formatter which generates individual rows for the outputted table.
+Each SubExpression asks a Formatter to `format` a sub expression string.
 
-The Formatter takes a cron sub expression, a permitted range, a timescale
-string, and a DelimiterDescriber - an object responsible for knowing about the
-delimiters used in cron expressions \*, /, - and ,
-
-The Formatter passes the sub expression to the SubExpressionValidator along with
-the delimiter and acceptable range to validate that the sub expression is valid
-for the component it relates to. A year has months 1-12, so if you ask for month
-13 it will fail here.
-
-The Formatter then generates a valid output string for each sub expression and
-returns it to the CronParser for output
+The formatted strings make their way back to the Expression, which generates the
+`english_output` and returns it to the CronParser to display to the user.
 
 ## Usage
 

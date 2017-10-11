@@ -1,20 +1,20 @@
 class Normalizer
-  attr_reader :cron_sub_expression, :normalization_hash
+  attr_reader :sub_expression, :normalization_hash
 
-  def initialize(cron_sub_expression:, normalization_hash:)
-    @cron_sub_expression = cron_sub_expression
+  def initialize(sub_expression:, normalization_hash:)
+    @sub_expression = sub_expression
     @normalization_hash = normalization_hash
   end
 
   def normalize
-    return cron_sub_expression if wildcard?
+    return sub_expression if wildcard?
     normalized_string
   end
 
   private
 
   def wildcard?
-    cron_sub_expression == "*"
+    sub_expression == "*"
   end
 
   def normalized_string
@@ -22,15 +22,15 @@ class Normalizer
   end
 
   def normalized_array
-    cron_sub_expression_as_array.map{ |input| normalized_value(input) }
+    sub_expression_as_array.map{ |input| normalized_value(input) }
   end
 
-  def cron_sub_expression_as_array
-    cron_sub_expression.split(delimiter)
+  def sub_expression_as_array
+    sub_expression.split(delimiter)
   end
 
   def delimiter_describer
-    DelimiterDescriber.new(cron_sub_expression: cron_sub_expression)
+    DelimiterDescriber.new(sub_expression: sub_expression)
   end
 
   def delimiter

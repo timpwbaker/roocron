@@ -23,7 +23,7 @@ RSpec.describe ExpressionValidator, "#validate" do
     user_input = "* * * * /usr/bin/find"
     expression_validator = ExpressionValidator.new(user_input: user_input)
 
-    expect{expression_validator.validate}.to raise_error(
+    expect { expression_validator.validate }.to raise_error(
       RuntimeError,
       "Invalid input expression, the input should be 5 cron elements followed by a command. For details please checkout the README")
   end

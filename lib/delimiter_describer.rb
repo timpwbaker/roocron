@@ -1,8 +1,8 @@
 class DelimiterDescriber
-  attr_reader :cron_sub_expression
+  attr_reader :sub_expression
 
-  def initialize(cron_sub_expression:)
-    @cron_sub_expression = cron_sub_expression
+  def initialize(sub_expression:)
+    @sub_expression = sub_expression
   end
 
   def slash_delimited?
@@ -10,7 +10,7 @@ class DelimiterDescriber
   end
 
   def wildcard?
-    cron_sub_expression == "*"
+    sub_expression == "*"
   end
 
   def comma_delimited?
@@ -22,12 +22,12 @@ class DelimiterDescriber
   end
 
   def slash_format_divisor
-    slash_delimited? && cron_sub_expression.split("/").last.to_i
+    slash_delimited? && sub_expression.split("/").last.to_i
   end
 
   def delimiter
     permitted_delimiters.find{ |delimiter| 
-      cron_sub_expression.include?(delimiter) }
+      sub_expression.include?(delimiter) }
   end
 
   private

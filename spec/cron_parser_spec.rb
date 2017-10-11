@@ -12,14 +12,30 @@ RSpec.describe CronParser, ".initialize" do
     user_input = "* * * * /usr/bin/find"
     parser = CronParser.new(user_input: user_input)
 
-    expect{parser.parse}.to raise_error(
+    expect { parser.parse }.to raise_error(
       RuntimeError,
       "Invalid input expression, the input should be 5 cron elements followed "\
       "by a command. For details please checkout the README")
   end
+
+  it "returns an error if no user input is given" do
+    user_input = nil
+    parser = CronParser.new(user_input: user_input)
+
+    expect { parser.parse }.to raise_error(
+      RuntimeError, "There has been a problem, have you provided an input?")
+  end
 end
 
 RSpec.describe CronParser, "#parse" do
+  it "errors from the sub expression validator bubble up successfully" do
+    user_input = "60 0 1,15 * 1-5 /usr/bin/find"
+    parser = CronParser.new(user_input: user_input)
+
+    expect { parser.parse }.to raise_error(
+      RuntimeError, "Request invalid, minute must be between 0..59")
+  end
+
   it "returns the known response" do
     user_input = "*/15 0 1,15 * 1-5 /usr/bin/find"
     parser = CronParser.new(user_input: user_input)
@@ -41,7 +57,7 @@ RSpec.describe CronParser, "#parse" do
       user_input = example_argument
       parser = CronParser.new(user_input: user_input)
 
-      expect{parser.parse}.not_to raise_error
+      expect { parser.parse }.not_to raise_error
     end
   end
 end
@@ -109,15 +125,4 @@ def example_results
       "command       /usr/bin/find"
     ].join("\n") + "\n"
   ]
-end
-
-def known_result
-  [
-    "minute        0 15 30 45",
-    "hour          0",
-    "day of month  1 15",
-    "month         1 2 3 4 5 6 7 8 9 10 11 12",
-    "day of week   1 2 3 4 5",
-    "command       /usr/bin/find"
-  ].join("\n") + "\n"
 end
