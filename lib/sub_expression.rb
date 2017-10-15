@@ -14,11 +14,9 @@ class SubExpression
     @delimiter_describer = delimiter_describer
   end
 
-  def english_string
+  def output
     if sub_expression_validator.valid?
-      formatted_string
-    else
-      "The #{timescale_string} is incorrect, please check and try again"
+      output_string
     end
   end
 
@@ -33,15 +31,7 @@ class SubExpression
     )
   end
 
-  def formatted_string
-    "#{formatted_descriptor(timescale_string)}#{output_formatter}"
-  end
-
-  def formatted_descriptor(descriptor)
-    @_formatted_descriptor ||= "%-14.14s" % descriptor
-  end
-
-  def output_formatter
+  def output_string
     if delimiter_describer.slash_delimited?
       slash_formatter
     elsif delimiter_describer.wildcard?

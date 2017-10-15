@@ -30,68 +30,79 @@ class CronParser
 
   def generate_output
     [
-      minute.english_string,
-      hour.english_string,
-      day_of_month.english_string,
-      month.english_string,
-      day_of_week.english_string,
+      formatted_string(minutes),
+      formatted_string(hours),
+      formatted_string(days_of_month),
+      formatted_string(months),
+      formatted_string(days_of_week),
       command_formatted_string
     ].join("\n") + "\n"
   end
 
-  def minute
-    SubExpression.new(sub_expression: sub_expressions.minute,
-                      timescale_string: minute_timescale_string,
-                      permitted_range: minute_permitted_range,
-                      delimiter_describer: delimiter_describer_for(
-                        sub_expressions.minute))
+  def formatted_string(sub_expressions)
+    "#{formatted_descriptor(sub_expressions.string)}#{sub_expressions.output}"
   end
 
-  def hour
-    SubExpression.new(sub_expression: sub_expressions.hour,
-                      timescale_string: hour_timescale_string,
-                      permitted_range: hour_permitted_range,
-                      delimiter_describer: delimiter_describer_for(
-                        sub_expressions.hour))
+  def formatted_descriptor(descriptor)
+    "%-14.14s" % descriptor
   end
 
-  def day_of_month
-    SubExpression.new(sub_expression: sub_expressions.day_of_month,
-                      timescale_string: day_of_month_timescale_string,
-                      permitted_range: day_of_month_permitted_range,
-                      delimiter_describer: delimiter_describer_for(
-                        sub_expressions.day_of_month))
+  def minutes
+    sub_expressions_struct(string: minute_timescale_string,
+                           sub_expressions: sub_expressions.minutes,
+                           permitted_range: minute_permitted_range)
   end
 
-  def month
-    SubExpression.new(sub_expression: normalized_month,
-                      timescale_string: month_timescale_string,
-                      permitted_range: month_permitted_range,
-                      delimiter_describer: delimiter_describer_for(
-                        normalized_month))
+  def hours
+    sub_expressions_struct(string: hour_timescale_string,
+                           sub_expressions: sub_expressions.hours,
+                           permitted_range: hour_permitted_range)
   end
 
-  def day_of_week
-    SubExpression.new(sub_expression: normalized_day_of_week,
-                      timescale_string: day_of_week_timescale_string,
-                      permitted_range: day_of_week_permitted_range,
-                      delimiter_describer: delimiter_describer_for(
-                        normalized_day_of_week))
+  def days_of_month
+    sub_expressions_struct(string: day_of_month_timescale_string,
+                           sub_expressions: sub_expressions.days_of_month,
+                           permitted_range: day_of_month_permitted_range)
+  end
+
+  def months
+    sub_expressions_struct(string: month_timescale_string,
+                           sub_expressions: sub_expressions.months,
+                           permitted_range: month_permitted_range)
+  end
+
+  def days_of_week
+    sub_expressions_struct(string: day_of_week_timescale_string,
+                           sub_expressions: sub_expressions.days_of_week,
+                           permitted_range: day_of_week_permitted_range)
+  end
+
+  def sub_expressions_struct(string:, sub_expressions:, permitted_range:)
+    OpenStruct.new(
+      string: string,
+      output: sub_expressions.map{ |sub_expression|
+        SubExpression.new(sub_expression: sub_expression,
+                          timescale_string: string,
+                          permitted_range: permitted_range,
+                          delimiter_describer: delimiter_describer_for(
+                            sub_expression)).output
+      }.join(" ")
+    )
   end
 
   def delimiter_describer_for(sub_expression)
     DelimiterDescriber.new(sub_expression: sub_expression)
   end
 
-  def normalized_month
+  def normalized_month(month)
     Normalizer.new(
-      sub_expression: sub_expressions.month,
+      sub_expression: month,
       normalization_hash: month_of_year_hash).normalize
   end
 
-  def normalized_day_of_week
+  def normalized_day_of_week(day_of_week)
     Normalizer.new(
-      sub_expression: sub_expressions.day_of_week,
+      sub_expression: day_of_week,
       normalization_hash: day_of_week_hash).normalize
   end
 
@@ -110,11 +121,11 @@ class CronParser
   def sub_expressions
     parts = user_input.split(" ")
     OpenStruct.new(
-      minute: parts[0],
-      hour: parts[1],
-      day_of_month: parts[2],
-      month: parts[3],
-      day_of_week: parts[4],
+      minutes: parts[0].split(","),
+      hours: parts[1].split(","),
+      days_of_month: parts[2].split(","),
+      months: parts[3].split(",").map{ |month| normalized_month(month) },
+      days_of_week: parts[4].split(",").map{ |day| normalized_day_of_week(day) },
       command: parts[5]
     )
   end

@@ -36,6 +36,13 @@ RSpec.describe CronParser, "#parse" do
       RuntimeError, "Request invalid, minute must be between 0..59")
   end
 
+  it "can handle multi delimited sub expressions" do
+    user_input = "*/15,6,12 1-3,5 1,15,20-22 jan-mar,aug 1-4,sat /usr/bin/find"
+    parser = CronParser.new(user_input: user_input)
+
+    expect(parser.parse).to eq multi_delimited_result
+  end
+
   it "returns the known response" do
     user_input = "*/15 0 1,15 * 1-5 /usr/bin/find"
     parser = CronParser.new(user_input: user_input)
@@ -134,6 +141,17 @@ def known_result
     "day of month  1 15",
     "month         1 2 3 4 5 6 7 8 9 10 11 12",
     "day of week   1 2 3 4 5",
+    "command       /usr/bin/find"
+  ].join("\n") + "\n"
+end
+
+def multi_delimited_result
+  [
+    "minute        0 15 30 45 6 12",
+    "hour          1 2 3 5",
+    "day of month  1 15 20 21 22",
+    "month         1 2 3 8",
+    "day of week   1 2 3 4 6",
     "command       /usr/bin/find"
   ].join("\n") + "\n"
 end
